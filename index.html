@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cookie Banner You Have to Eat</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --amber:#ffb547; --bg:#0e0d10; --card:#17161a; --line:#2a282e; --text:#ece8ee; --muted:#8d8792; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+  /* ---------- the website behind ---------- */
+  .site{max-width:620px;margin:0 auto;padding:60px 24px 60px;transition:filter .7s ease, opacity .7s ease}
+  body:not(.accepted) .site{filter:blur(3px);opacity:.45}
+  .top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}
+  .logo{font-family:"DM Serif Display",serif;font-size:22px;color:var(--text)}
+  .site h1{font-family:"DM Serif Display",serif;font-weight:400;font-size:38px;line-height:1.1;margin:34px 0 10px}
+  .meta{font-size:13px;color:var(--muted)}
+  .hero{height:150px;border-radius:16px;margin:22px 0;background:linear-gradient(135deg,rgba(255,181,71,.35),rgba(196,106,16,.08)),#17161a}
+  .site p{font-size:15.5px;line-height:1.7;color:#cfc9d3;margin-top:14px}
+
+  /* ---------- the banner ---------- */
+  .scrim{position:fixed;inset:0;background:rgba(8,7,10,.55);transition:opacity .6s ease;pointer-events:none}
+  .accepted .scrim{opacity:0}
+  .banner{position:fixed;left:50%;top:50%;width:min(380px,92vw);transform:translate(-50%,-50%);
+    background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px 24px 20px;text-align:center;
+    box-shadow:0 30px 70px rgba(0,0,0,.55);transition:transform .6s cubic-bezier(.5,-0.3,.6,1), opacity .5s ease .1s}
+  .accepted .banner{transform:translate(-50%,60vh);opacity:0;pointer-events:none}
+  .banner h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:28px}
+  .banner .sub{color:var(--muted);font-size:13.5px;margin-top:6px;line-height:1.5}
+  .cookie-wrap{position:relative;width:220px;height:220px;margin:18px auto 6px}
+  .cookie{width:100%;height:100%;cursor:pointer;overflow:visible;touch-action:manipulation;
+    filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}
+  .cookie.pulse{animation:pulse .18s ease-out}
+  @keyframes pulse{50%{transform:scale(.965) rotate(-1.5deg)}}
+  .cookie.gone{animation:vanish .35s ease-in forwards}
+  @keyframes vanish{to{transform:scale(.2) rotate(40deg);opacity:0}}
+  .crumb{position:absolute;width:var(--s);height:var(--s);border-radius:35%;background:var(--c);pointer-events:none;
+    animation:fall .9s cubic-bezier(.3,.1,.7,1) forwards}
+  @keyframes fall{
+    0%{transform:translate(-50%,-50%) rotate(0)}
+    100%{transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--r));opacity:0}
+  }
+  .hint{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);min-height:16px}
+  .done-msg{font-size:18px;font-weight:600;color:var(--amber);min-height:24px;margin-top:4px}
+  .actions{display:flex;justify-content:center;gap:10px;margin-top:14px}
+  .btn{border-radius:10px;padding:11px 16px;font:600 13px Inter,sans-serif;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--muted)}
+  .btn.bite{background:var(--amber);border-color:var(--amber);color:#1a1206}
+  .banner.nope{animation:nope .4s}
+  @keyframes nope{20%,60%{margin-left:-8px}40%,80%{margin-left:8px}}
+
+  .again{position:fixed;right:16px;bottom:16px;border:1px solid var(--line);background:var(--card);color:var(--text);
+    border-radius:999px;padding:9px 14px;font:600 12.5px Inter,sans-serif;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .4s .5s}
+  .accepted .again{opacity:1;pointer-events:auto}
+  .sound{position:fixed;top:14px;right:14px;z-index:5;background:transparent;border:1px solid var(--line);
+    color:var(--muted);border-radius:999px;padding:7px 12px;font:500 12px Inter,sans-serif;cursor:pointer}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<button class="sound" id="soundBtn" aria-pressed="true">Sound: on</button>
+
+<article class="site" aria-hidden="true" id="site">
+  <div class="top"><span class="logo">Morning Read</span><span>News · Tech · Life</span></div>
+  <h1>Why does every website ask about cookies?</h1>
+  <p class="meta">5 min read</p>
+  <div class="hero"></div>
+  <p>Those little popups exist because of privacy laws. Sites have to ask before they store tracking data in your browser.</p>
+  <p>Most people click the first button they see. Some click "Reject all" on principle. A few close the tab entirely.</p>
+  <p>Either way, nobody has ever enjoyed one. Until now, maybe.</p>
+</article>
+
+<div class="scrim"></div>
+<section class="banner" id="banner" role="dialog" aria-labelledby="bt" aria-describedby="bs">
+  <h2 id="bt">We use cookies 🍪</h2>
+  <p class="sub" id="bs">To keep reading, you'll need to accept them. Literally.</p>
+  <div class="cookie-wrap" id="wrap">
+    <svg class="cookie" id="cookie" viewBox="0 0 240 240" aria-hidden="true">
+      <defs>
+        <radialGradient id="dough" cx="42%" cy="38%" r="65%">
+          <stop offset="0" stop-color="#eebc76"/><stop offset=".6" stop-color="#d79a4f"/><stop offset="1" stop-color="#a8662c"/>
+        </radialGradient>
+        <mask id="bites" maskUnits="userSpaceOnUse" x="0" y="0" width="240" height="240">
+          <rect width="240" height="240" fill="#fff"/>
+          <g id="biteMarks"></g>
+        </mask>
+      </defs>
+      <g mask="url(#bites)">
+        <circle cx="120" cy="120" r="110" fill="url(#dough)"/>
+        <circle cx="120" cy="120" r="110" fill="none" stroke="#9a5a24" stroke-width="3" opacity=".5"/>
+        <g fill="#f7d39a" opacity=".45">
+          <circle cx="70" cy="80" r="2"/><circle cx="160" cy="60" r="1.6"/><circle cx="100" cy="150" r="1.8"/><circle cx="180" cy="140" r="2"/>
+          <circle cx="140" cy="100" r="1.5"/><circle cx="60" cy="140" r="1.7"/><circle cx="120" cy="190" r="1.9"/><circle cx="190" cy="95" r="1.4"/>
+        </g>
+        <g fill="#4a2814">
+          <path d="M78 62 q10 -6 16 4 q-2 10 -12 9 q-8 -4 -4 -13z"/>
+          <path d="M150 52 q11 -2 13 9 q-6 8 -14 4 q-5 -7 1 -13z"/>
+          <path d="M112 108 q12 -5 15 6 q-3 10 -13 8 q-8 -5 -2 -14z"/>
+          <path d="M176 112 q10 -1 11 10 q-7 7 -14 2 q-3 -8 3 -12z"/>
+          <path d="M58 118 q10 -3 12 8 q-5 8 -13 4 q-4 -7 1 -12z"/>
+          <path d="M92 166 q12 -3 13 9 q-7 8 -15 3 q-4 -8 2 -12z"/>
+          <path d="M146 158 q10 -4 14 6 q-4 10 -13 7 q-7 -5 -1 -13z"/>
+          <path d="M120 64 q7 -2 8 6 q-4 5 -9 2 q-2 -5 1 -8z"/>
+          <path d="M188 160 q6 -1 7 6 q-4 4 -8 1 q-2 -4 1 -7z"/>
+          <path d="M44 88 q6 -1 7 6 q-4 4 -8 1 q-2 -4 1 -7z"/>
+          <path d="M126 196 q7 -2 8 5 q-4 5 -9 2 q-2 -4 1 -7z"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <p class="hint" id="hint">Tap the cookie to take a bite</p>
+  <p class="done-msg" id="done" aria-live="polite"></p>
+  <div class="actions">
+    <button class="btn" id="reject">Reject all</button>
+    <button class="btn bite" id="biteBtn">Take a bite</button>
+  </div>
+</section>
+<button class="again" id="again">Bake another 🍪</button>
+
+<script>
+const svgNS = "http://www.w3.org/2000/svg";
+const cookie = document.getElementById("cookie");
+const marks = document.getElementById("biteMarks");
+const wrap = document.getElementById("wrap");
+const banner = document.getElementById("banner");
+const hint = document.getElementById("hint");
+const done = document.getElementById("done");
+let audioCtx = null, soundOn = true, bites = [], finished = false;
+
+/* sample points across the cookie, used to measure how much is eaten */
+const samples = [];
+for(let x = 14; x <= 226; x += 9) for(let y = 14; y <= 226; y += 9)
+  if((x - 120) ** 2 + (y - 120) ** 2 < 104 ** 2) samples.push([x, y]);
+
+/* ---------- sound ---------- */
+function getCtx(){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+  }catch(e){ audioCtx = null; }
+  return audioCtx;
+}
+function grain(ctx, t, freq, vol, len){
+  const n = Math.floor(ctx.sampleRate * len);
+  const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for(let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2);
+  const src = ctx.createBufferSource(); src.buffer = buf;
+  const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = freq; bp.Q.value = 0.9;
+  const g = ctx.createGain(); g.gain.value = vol;
+  src.connect(bp).connect(g).connect(ctx.destination); src.start(t);
+}
+function crunch(){
+  const ctx = getCtx(); if(!ctx || !soundOn) return;
+  const t = ctx.currentTime;
+  grain(ctx, t, 260, 0.9, 0.06);                       // the bite thump
+  for(let i = 0; i < 7; i++)                           // the crunchy crackle
+    grain(ctx, t + 0.01 + Math.random() * 0.16, 1200 + Math.random() * 2600, 0.25 + Math.random() * 0.35, 0.01 + Math.random() * 0.02);
+}
+function yum(){
+  const ctx = getCtx(); if(!ctx || !soundOn) return;
+  const t = ctx.currentTime;
+  [[660, 0], [990, 0.11]].forEach(([f, d]) => {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(f, t + d);
+    g.gain.setValueAtTime(0.14, t + d); g.gain.exponentialRampToValueAtTime(0.001, t + d + 0.35);
+    o.connect(g).connect(ctx.destination); o.start(t + d); o.stop(t + d + 0.4);
+  });
+}
+function buzz(){
+  const ctx = getCtx(); if(!ctx || !soundOn) return;
+  const t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = "square"; o.frequency.value = 110;
+  g.gain.setValueAtTime(0.06, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+  o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + 0.26);
+}
+
+/* ---------- biting ---------- */
+function crumbs(x, y, count){
+  const box = wrap.getBoundingClientRect(), scale = box.width / 240;
+  for(let i = 0; i < count; i++){
+    const c = document.createElement("span");
+    c.className = "crumb";
+    c.style.left = x * scale + "px";
+    c.style.top = y * scale + "px";
+    c.style.setProperty("--s", 3 + Math.random() * 6 + "px");
+    c.style.setProperty("--c", ["#d79a4f", "#a8662c", "#eebc76", "#4a2814"][i % 4]);
+    c.style.setProperty("--dx", (Math.random() - 0.5) * 120 + "px");
+    c.style.setProperty("--dy", 60 + Math.random() * 120 + "px");
+    c.style.setProperty("--r", (Math.random() - 0.5) * 540 + "deg");
+    wrap.appendChild(c);
+    setTimeout(() => c.remove(), 950);
+  }
+}
+function bite(x, y){
+  if(finished) return;
+  // a bite = one big circle with a scalloped (tooth-mark) edge
+  const g = document.createElementNS(svgNS, "g");
+  const add = (cx, cy, r) => {
+    const c = document.createElementNS(svgNS, "circle");
+    c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", r); c.setAttribute("fill", "#000");
+    g.appendChild(c);
+  };
+  add(x, y, 42);
+  for(let a = 0; a < 360; a += 45){
+    const r = a * Math.PI / 180;
+    add(x + Math.cos(r) * 42, y + Math.sin(r) * 42, 11);
+  }
+  marks.appendChild(g);
+  bites.push([x, y]);
+  crunch();
+  crumbs(x, y, 10);
+  cookie.classList.remove("pulse"); void cookie.getBoundingClientRect(); cookie.classList.add("pulse");
+
+  const eaten = samples.filter(([sx, sy]) => bites.some(([bx, by]) => (sx - bx) ** 2 + (sy - by) ** 2 < 50 ** 2)).length / samples.length;
+  hint.textContent = eaten < 0.3 ? "Keep going…" : eaten < 0.6 ? "Halfway there 😋" : "Almost done!";
+  if(eaten > 0.8) finish();
+}
+function finish(){
+  finished = true;
+  crumbs(120, 120, 26);
+  cookie.classList.add("gone");
+  hint.textContent = "";
+  done.textContent = "Cookies accepted 😋";
+  yum();
+  setTimeout(() => document.body.classList.add("accepted"), 1100);
+}
+function nextSpot(){
+  // for the button: bite the uneaten spot nearest the edge
+  const left = samples.filter(([sx, sy]) => !bites.some(([bx, by]) => (sx - bx) ** 2 + (sy - by) ** 2 < 50 ** 2));
+  left.sort((a, b) => ((b[0]-120)**2 + (b[1]-120)**2) - ((a[0]-120)**2 + (a[1]-120)**2));
+  return left[0] || [120, 120];
+}
+
+cookie.addEventListener("click", e => {
+  const box = cookie.getBoundingClientRect();
+  const x = (e.clientX - box.left) / box.width * 240, y = (e.clientY - box.top) / box.height * 240;
+  if((x - 120) ** 2 + (y - 120) ** 2 > 118 ** 2) return;
+  bite(x, y);
+});
+document.getElementById("biteBtn").addEventListener("click", () => bite(...nextSpot()));
+document.getElementById("reject").addEventListener("click", () => {
+  buzz();
+  hint.textContent = "Nice try. Eat the cookie.";
+  banner.classList.remove("nope"); void banner.offsetWidth; banner.classList.add("nope");
+});
+document.getElementById("again").addEventListener("click", () => {
+  marks.innerHTML = ""; bites = []; finished = false;
+  cookie.classList.remove("gone");
+  hint.textContent = "Tap the cookie to take a bite"; done.textContent = "";
+  document.body.classList.remove("accepted");
+});
+document.getElementById("soundBtn").addEventListener("click", e => {
+  soundOn = !soundOn;
+  e.currentTarget.textContent = "Sound: " + (soundOn ? "on" : "off");
+  e.currentTarget.setAttribute("aria-pressed", soundOn);
+});
+</script>
+</body>
+</html>
